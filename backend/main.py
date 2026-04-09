@@ -439,10 +439,13 @@ def secom_predict(inp: SECOMInput):
     except Exception as e:
         raise HTTPException(400, f"Preprocessing failed: {e}")
     t0 = time.perf_counter()
-    p_xgb = float(pipe["xgboost"].predict_proba(sel)[0, 1])
-    p_lgb = float(pipe["lightgbm"].predict_proba(sel)[0, 1])
-    p_rf = float(pipe["random_forest"].predict_proba(sel)[0, 1])
-    p_et = float(pipe["extra_trees"].predict_proba(sel)[0, 1])
+    try:
+        p_xgb = float(pipe["xgboost"].predict_proba(sel)[0, 1])
+        p_lgb = float(pipe["lightgbm"].predict_proba(sel)[0, 1])
+        p_rf = float(pipe["random_forest"].predict_proba(sel)[0, 1])
+        p_et = float(pipe["extra_trees"].predict_proba(sel)[0, 1])
+    except Exception as e:
+        raise HTTPException(500, f"Model inference failed: {e}")
     p_ens = (p_xgb + p_lgb + p_rf + p_et) / 4
     dt = (time.perf_counter() - t0) * 1000
     thr = pipe["ensemble_threshold"]

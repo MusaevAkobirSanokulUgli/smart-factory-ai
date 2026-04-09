@@ -302,10 +302,12 @@
         <div class="mcard-title" lang="uz">Sensor qiymatlari (vergul yoki yangi qator bilan, 590 tagacha)</div>
         <textarea id="secom-text" rows="6" placeholder="3030.93, 2564.00, 2187.7333, 1411.1265, 1.3602, 100.0, ..."></textarea>
         <div class="preset-row">
-          <button class="chip" id="secom-gen-normal" lang="en">Generate normal</button>
-          <button class="chip" id="secom-gen-normal" lang="uz">Normal yaratish</button>
-          <button class="chip" id="secom-gen-anom" lang="en">Generate anomaly</button>
-          <button class="chip" id="secom-gen-anom" lang="uz">Anomaliya yaratish</button>
+          <button class="chip secom-gen-normal">
+            <span lang="en">Generate normal</span><span lang="uz">Normal yaratish</span>
+          </button>
+          <button class="chip secom-gen-anom">
+            <span lang="en">Generate anomaly</span><span lang="uz">Anomaliya yaratish</span>
+          </button>
         </div>
         <button class="btn primary" id="secom-go">
           <span lang="en">Run 5-learner ensemble</span>

@@ -361,8 +361,8 @@ function pctFill(p) { return `<div class="bar"><div class="fill" style="width:${
     return arr.join(', ');
   }
 
-  document.getElementById('secom-gen-normal').addEventListener('click', () => { text.value = gen(false); });
-  document.getElementById('secom-gen-anom').addEventListener('click', () => { text.value = gen(true); });
+  document.querySelector('.secom-gen-normal').addEventListener('click', () => { text.value = gen(false); });
+  document.querySelector('.secom-gen-anom').addEventListener('click', () => { text.value = gen(true); });
 
   btn.addEventListener('click', async () => {
     const raw = text.value.trim();
