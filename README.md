@@ -1,192 +1,144 @@
 # Smart-Factory AI — Unified Showcase App
 
-**Five CPU-only industrial ML models behind one FastAPI backend and a modern
-single-page web frontend. All trained by Akobir Musaev, all live-testable in a
-browser in under 60 seconds.**
+**Four CPU-only industrial ML models behind one FastAPI backend and a modern
+bilingual (EN/UZ) web frontend. ONNX + native tree-based inference — no PyTorch
+needed at runtime.**
 
-This is a production-style wrapper around the best-performing models from
-`D:\Ai_Portfolio` (Book B of the 15-model portfolio). It addresses the gap
-identified in the deployment audit: the original portfolio ships individual
-Docker containers per model (Book A only), no unified API, no interactive UI,
-and 8 of 10 Book B projects weren't even persisting their trained weights.
-This app fixes all of that.
+Models served:
+1. **PPE Hard-Hat Detection** — YOLOv8s ONNX, safety-biased confidence sweep
+2. **Machine Failure Prediction** — XGBoost + LightGBM ensemble, SHAP-lite drivers
+3. **Equipment / Parts NER** — rule-based manufacturing lexicons, 2 ms/text
+4. **SECOM Wafer Fault Detection** — 4-tree rank-average ensemble (XGB+LGB+RF+ET)
 
 ---
 
 ## What's inside
 
 ```
-D:\SmartFactoryApp\
-├── README.md                       ← this file
-├── start.bat                       ← one-click launcher (Windows)
-├── start.sh                        ← one-click launcher (bash/git-bash)
+smart-factory-ai/
+├── README.md
+├── Dockerfile                      ← production Docker image
+├── render.yaml                     ← Render.com one-click deploy
+├── requirements.txt                ← onnxruntime, xgboost, lightgbm, sklearn (NO torch)
+├── start.bat / start.sh            ← local launchers
 ├── backend/
-│   └── main.py                     ← unified FastAPI app, 5 REST endpoints
-└── frontend/
-    ├── index.html                  ← bilingual EN/UZ single-page UI
-    └── assets/
-        ├── app.css                 ← dark theme + glassmorphism
-        └── app.js                  ← vanilla JS client, no frameworks
+│   └── main.py                     ← FastAPI, 4 inference endpoints + health + models
+├── frontend/
+│   ├── index.html                  ← bilingual EN/UZ single-page UI
+│   └── assets/
+│       ├── app.css                 ← dark theme + glassmorphism + responsive
+│       └── app.js                  ← vanilla JS client, drag-drop, live inference
+└── models/                         ← self-contained, all models shipped in repo
+    ├── yolov8s_hardhat.onnx        ← 44.7 MB  (PPE detection)
+    ├── ai4i_xgboost.json           ← 0.9 MB   (machine failure, XGBoost half)
+    ├── ai4i_lightgbm.joblib        ← 2.3 MB   (machine failure, LightGBM half)
+    ├── secom_pipeline.joblib       ← 13.2 MB  (full SECOM 4-tree pipeline)
+    ├── casting_efficientnet_b0.onnx      ← (available but not exposed in UI)
+    └── casting_efficientnet_b0.onnx.data
 ```
 
-## The 5 models it serves
+---
 
-| # | Endpoint | Model | Input | Output | Latency (CPU) |
+## The 4 models
+
+| # | Endpoint | Model | Input | Key metric | Latency (CPU) |
 |---|---|---|---|---|---|
-| 1 | `POST /api/casting/predict` | EfficientNet-B0 fine-tune | `multipart` image | OK / DEFECT binary | **~45 ms** |
-| 2 | `POST /api/ppe/predict` | YOLOv8s (conf=0.05) | `multipart` image | Bounding boxes + SAFE/UNSAFE verdict | **~100 ms** (warm) |
-| 3 | `POST /api/ai4i/predict` | XGBoost + LightGBM rank-avg | JSON tabular | Ensemble failure prob + top-5 SHAP-lite drivers | **~20 ms** |
-| 4 | `POST /api/ner/extract` | BERT-NER + manufacturing lexicons | JSON `{text}` | BERT entities + equipment/parts/actions/quantities | **~40 ms** (warm) |
-| 5 | `POST /api/secom/predict` | 5-learner stack (XGB+LGB+LR+RF+ET) | JSON `{sensor_values: float[590]}` | 4-tree rank-avg ensemble score + per-learner probabilities | **~150 ms** |
+| 1 | `POST /api/ppe/predict` | YOLOv8s ONNX | image upload | Hardhat F1 0.969, NO-Hardhat F1 0.691, mAP@0.5 0.579 | **~109 ms** |
+| 2 | `POST /api/ai4i/predict` | XGBoost + LightGBM | JSON (6 fields) | Binary AUROC 0.9826, F1 0.904 | **~6 ms** |
+| 3 | `POST /api/ner/extract` | Rule-based lexicons | JSON `{text}` | 30 equipment + 30 parts + 27 action terms | **~2 ms** |
+| 4 | `POST /api/secom/predict` | 4-tree rank-avg (XGB+LGB+RF+ET) | JSON `{sensor_values[590]}` | Ensemble AUROC 0.7493 | **~120 ms** |
 
-Plus the utility endpoints `GET /api/health` and `GET /api/models`.
-
----
-
-## Prerequisites
-
-- **Windows** with the existing `D:\Ai_Portfolio\.venv` virtual environment
-  (created by `Ai_Portfolio\SETUP.md`). This is the venv that already has
-  PyTorch 2.11 CPU, timm, transformers, ultralytics, XGBoost, LightGBM,
-  scikit-learn and every other Book B dependency.
-- **FastAPI stack** added on top of that venv by this app (one-time install):
-  ```
-  "D:/Ai_Portfolio/.venv/Scripts/pip.exe" install fastapi "uvicorn[standard]" python-multipart
-  ```
-  (already done during the initial setup of this app)
-- **Trained checkpoints** from the Book B projects. The app auto-loads them
-  from:
-  - `D:\Ai_Portfolio\02_casting_defect_classification\model\casting_efficientnet_b0.pt`
-  - `D:\Ai_Portfolio\04_ppe_safety_yolov8n\model\yolov8s_hardhat.pt`
-  - `D:\Ai_Portfolio\06_machine_failure_xgboost\model\ai4i_xgboost.json`
-  - `D:\Ai_Portfolio\06_machine_failure_xgboost\model\ai4i_lightgbm.joblib`
-  - `D:\Ai_Portfolio\09_equipment_ner_bert\model\bert-base-NER\`
-  - `D:\Ai_Portfolio\10_sensor_anomaly_iforest_ae\model\secom_pipeline.joblib`
-
-  If any of these are missing, re-run the corresponding project's
-  `python run.py` — each `run.py` has been patched to persist its best weights
-  to disk at the end of training.
+Plus `GET /api/health` and `GET /api/models`.
 
 ---
 
-## Run it
+## Run locally
 
-**Windows cmd:**
-```bat
-D:\SmartFactoryApp\start.bat
-```
-
-**bash / git-bash:**
+**Option 1 — pip:**
 ```bash
-bash D:/SmartFactoryApp/start.sh
+pip install -r requirements.txt
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 7860
 ```
 
-**Manual:**
+**Option 2 — Docker:**
 ```bash
-cd D:/SmartFactoryApp/backend
-"D:/Ai_Portfolio/.venv/Scripts/python.exe" -m uvicorn main:app --host 127.0.0.1 --port 7860
+docker build -t smart-factory-ai .
+docker run -p 7860:7860 smart-factory-ai
 ```
 
-Then open <http://127.0.0.1:7860/> in any modern browser. You should see the
-bilingual EN/UZ Smart-Factory AI showcase with 5 model cards.
+Then open http://localhost:7860/ — bilingual EN/UZ showcase with 4 model cards.
 
-The OpenAPI spec is auto-generated at <http://127.0.0.1:7860/docs> — every
-endpoint has a built-in "Try it out" form via Swagger UI.
+OpenAPI docs at http://localhost:7860/docs (Swagger UI with "Try it out").
 
 ---
 
-## End-to-end verification
+## Deploy (free tier)
 
-Verified on this machine against the saved checkpoints:
+### Render.com
+`render.yaml` is included. Connect the GitHub repo on https://dashboard.render.com → auto-detected as Docker.
 
-| Model | Sample input | Response | Latency |
-|---|---|---|---|
-| Casting (defect) | `cast_def_0_0.jpeg` | `DEFECT · 100% conf` | **59 ms** |
-| Casting (ok) | `cast_ok_0_1018.jpeg` | `OK · 99.96% conf` | **43 ms** |
-| PPE | `hard_hat_workers1010.png` | `UNSAFE · 5 Hardhat + 1 NO-Hardhat` | ~100 ms warm |
-| AI4I healthy preset | `(298.1 K, 308.6 K, 1551 rpm, 42.8 Nm, 108 min, M)` | `OK · 0.0%` ensemble | **19 ms** |
-| AI4I overstrain preset | `(299.3 K, 309.8 K, 1282 rpm, 68.4 Nm, 215 min, L)` | `FAILURE LIKELY · 100%` | **27 ms** |
-| NER Samsung report | "At the Samsung Pyeongtaek fab, a 120 kg overheated bearing…" | ORG=Samsung Pyeongtaek (0.962), equipment=[bearing, belt, conveyor, gearbox, motor], parts=[bearing, belt, shaft], actions=[bent, overheated, snapped], qty=[120 kg, 3 mm] | 711 ms cold, ~40 ms warm |
-| SECOM | 590 synthetic sensor values | `OK · ensemble 20.8%` (XGB 5.8%, LGB 39.0%, RF 19.7%, ET 18.6%) | 467 ms |
+### Fly.io
+```bash
+fly launch --dockerfile Dockerfile --internal-port 7860
+fly deploy
+```
+
+### Docker anywhere
+```bash
+docker build -t smart-factory-ai .
+docker run -p 7860:7860 smart-factory-ai
+```
 
 ---
 
-## Design decisions
+## Runtime — no PyTorch needed
 
-**Single unified port.** All 5 models share `127.0.0.1:7860` instead of the
-5 separate ports (8080–8084) the Book A Dockerfiles use. One gateway, one
-server process, one OpenAPI spec.
+The backend uses **ONNX Runtime** for the YOLOv8s model and **native XGBoost /
+LightGBM / scikit-learn** for the tree-based models. Total installed size is
+~200 MB instead of ~3.5 GB with PyTorch + timm + ultralytics + transformers.
 
-**Lazy loading.** Each model's checkpoint is loaded on the first request that
-touches it, not at server startup. Boot is instant; cold-cache latency is a
-one-time hit for the first request of each endpoint. The frontend's health
-ping wakes up nothing — only a real inference request triggers loading.
+| Component | Size |
+|---|---|
+| onnxruntime | ~50 MB |
+| xgboost | ~50 MB |
+| lightgbm | ~10 MB |
+| scikit-learn | ~30 MB |
+| Model files | ~61 MB |
+| **Total** | **~200 MB** |
 
-**Single venv, no docker-compose required.** Uses the existing
-`D:\Ai_Portfolio\.venv` virtual environment so there are no duplicated
-dependencies. On a dev machine this eliminates the need to build 5 Docker
-images just to run the models side by side.
-
-**Zero frontend dependencies.** The web UI is pure vanilla HTML + CSS + JS.
-No React, no Vue, no npm install, no build step. `index.html` + `app.css` +
-`app.js` loaded directly from FastAPI's `StaticFiles` mount. This keeps the
-entire app self-contained and eliminates build-pipeline maintenance.
-
-**Bilingual EN/UZ from day 1.** Every piece of user-facing text has parallel
-English and Uzbek versions. Language switch is a pure-CSS toggle via
-`body[data-lang]` attribute, persisted to `localStorage`.
-
-**Honest verdict banners.** Each endpoint returns a plain-English `verdict`
-field (`OK`, `DEFECT`, `SAFE`, `UNSAFE`, `FAILURE LIKELY`, `FAULT LIKELY`).
-The frontend colour-codes these in green / red / amber so a visitor can read
-the outcome without understanding ML.
+This makes the Docker image small enough for any free-tier hosting.
 
 ---
 
 ## REST API reference
 
 ### `GET /api/health`
-Liveness probe. Returns `{"status": "ok", "ts": <unix>}`.
-
-### `GET /api/models`
-List of configured models, their metadata, and whether their checkpoint is
-present on disk.
-
-### `POST /api/casting/predict`
-**Content-Type:** `multipart/form-data`
-**Form field:** `file` (image, jpg/png)
-**Response:**
 ```json
-{
-  "class_index": 0,
-  "class_name": "def_front",
-  "confidence": 1.0,
-  "probabilities": {"def_front": 1.0, "ok_front": 0.0},
-  "verdict": "DEFECT",
-  "latency_ms": 58.88
-}
+{"status": "ok", "ts": 1775722007.17, "runtime": "onnxruntime+xgboost (no torch)"}
 ```
 
+### `GET /api/models`
+Returns metadata for all 4 models and whether each checkpoint is present.
+
 ### `POST /api/ppe/predict`
-**Content-Type:** `multipart/form-data`
-**Form field:** `file` (image)
-**Response:**
+**Input:** `multipart/form-data`, field `file` (image jpg/png)
+**Output:**
 ```json
 {
   "detections": [
     {"class": "Hardhat", "confidence": 0.91, "box": [399.3, 296.9, 416.0, 344.3]}
   ],
   "counts": {"Hardhat": 5, "NO-Hardhat": 1},
-  "total_people_in_frame": 6,
   "verdict": "UNSAFE",
   "conf_threshold": 0.05,
-  "latency_ms": 96.1,
-  "image_size": [1280, 720]
+  "latency_ms": 109.2
 }
 ```
+Pure-numpy YOLOv8 post-processing (letterbox + NMS) — no ultralytics dependency.
 
 ### `POST /api/ai4i/predict`
-**Content-Type:** `application/json`
+**Input:** `application/json`
 ```json
 {
   "air_temp_k": 298.1,
@@ -197,62 +149,49 @@ present on disk.
   "machine_type": "M"
 }
 ```
-Returns XGBoost + LightGBM + ensemble probabilities, engineered features, and
-top 5 feature drivers by XGBoost gain.
+Returns XGBoost + LightGBM + ensemble probabilities, threshold, verdict,
+and top-5 feature importance drivers.
 
 ### `POST /api/ner/extract`
-**Content-Type:** `application/json`
+**Input:** `application/json`
 ```json
-{"text": "The hydraulic pump drive belt broke at 08:15..."}
+{"text": "The hydraulic pump drive belt broke. A 40 mm bolt hit the crane."}
 ```
-Returns BERT-NER (open-domain PER/ORG/LOC/MISC) plus rule-based extractions
-for manufacturing equipment, parts, actions, and quantities.
+Returns rule-based extractions: equipment, parts, actions, quantities.
+89 domain terms across 3 lexicons.
 
 ### `POST /api/secom/predict`
-**Content-Type:** `application/json`
+**Input:** `application/json`
 ```json
-{"sensor_values": [3030.93, 2564.00, 2187.73, ...590 numbers]}
+{"sensor_values": [3030.93, 2564.00, 2187.73, ...up to 590 numbers]}
 ```
-Returns per-learner probabilities for XGBoost, LightGBM, RandomForest,
-ExtraTrees, plus the 4-tree rank-average ensemble score. Missing values can
-be sent as `null` or omitted (will be imputed by the saved `SimpleImputer`).
+Returns per-learner probabilities (XGBoost, LightGBM, RandomForest, ExtraTrees)
+plus the 4-tree rank-average ensemble score. Missing values padded with NaN and
+imputed by the saved sklearn `SimpleImputer`.
 
 ---
 
-## Known limitations & future work
+## Design decisions
 
-- **GPU models not served.** The 5 Book A models (A·01–A·05) are PyTorch
-  state_dicts trained on Kaggle's P100 GPU. They are not included here
-  because they target different input shapes and the source tree doesn't
-  expose them as a clean Python library (each has its own `src/train.py`
-  defining the model class locally). Adding them would require importing
-  each `src/train.py` via a sys.path hack and is left as a follow-up.
-- **No ONNX exports yet.** Everything runs as native PyTorch / XGBoost /
-  LightGBM. Exporting the EfficientNet-B0 casting classifier and the YOLOv8s
-  hardhat detector to ONNX would enable browser-side inference via
-  `onnxruntime-web` (no backend at all).
-- **No auth.** The API is open. Fine for a local demo, not production.
-- **No docker-compose.** The app runs as a single uvicorn process. A
-  Dockerfile could be added in ~20 lines, but for a showcase the "just run
-  python main.py" story is simpler.
-- **No mobile wrapper.** A Capacitor or Tauri wrapper around the frontend
-  would give you an installable app — again, a natural follow-up.
+- **Self-contained models.** All model files live in `models/` inside the repo.
+  No external path dependencies. Clone and run.
+- **ONNX for vision, native for trees.** YOLOv8s is exported to ONNX with a
+  pure-numpy NMS post-processor. Tree-based models (XGBoost, LightGBM, sklearn)
+  stay in their native format — no conversion overhead, no version friction.
+- **Lazy loading.** Models load on first request, not at boot. Server starts
+  in under a second; first inference of each model has a one-time cold-cache hit.
+- **Zero frontend deps.** Pure HTML + CSS + JS. No React, no npm, no build step.
+- **Bilingual EN/UZ.** Language switch via `body[data-lang]` + `localStorage`.
+  Every user-facing string has parallel English and Uzbek versions.
+- **Honest verdicts.** Each endpoint returns a plain-English `verdict` field
+  (`OK`, `SAFE`, `UNSAFE`, `FAILURE LIKELY`, `FAULT LIKELY`). The frontend
+  colour-codes these in green / red so non-ML users can read the result.
 
 ---
 
-## How this was built
+## Built by
 
-See the git-trackable diff at commit time, but the key steps were:
+**Akobir Musaev** — senior full-stack + AI/ML engineer.
 
-1. Patched three Book B scripts (`02_casting`, `06_machine_failure`,
-   `10_sensor_anomaly`) to call `torch.save()` / `joblib.dump()` at the end
-   of training. Previously they discarded their weights at process exit,
-   which made them impossible to serve.
-2. Re-ran all three scripts to generate the checkpoints.
-3. Wrote a single `backend/main.py` with lazy-loading for all 5 models,
-   routing per-model inference through matched Pydantic request schemas.
-4. Wrote `frontend/index.html` + `assets/app.css` + `assets/app.js` — a
-   fully bilingual single-page UI. No build step.
-5. End-to-end tested every endpoint with real data from the source datasets.
-
-Total time to build, test, and document: one session.
+Part of a 15-model smart-factory AI portfolio targeting Korean predictive-maintenance
+and industrial-automation roles.
