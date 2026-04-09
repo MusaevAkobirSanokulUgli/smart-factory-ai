@@ -14,9 +14,6 @@
     <a class="brand" href="#top">Smart-Factory <span class="grad">AI</span></a>
     <div class="spacer"></div>
     <div class="nav-links">
-      <a href="#casting" data-model="casting">
-        <span lang="en">Casting</span><span lang="uz">Quyma</span>
-      </a>
       <a href="#ppe" data-model="ppe">
         <span lang="en">PPE</span><span lang="uz">Kaska</span>
       </a>
@@ -48,23 +45,23 @@
       <span lang="uz">Jonli · faqat CPU · 5 model · bitta API</span>
     </div>
     <h1>
-      <span lang="en">Try five industrial ML models<br/><span class="grad">right now</span>, in your browser.</span>
-      <span lang="uz">Beshta sanoat ML modelini <br/><span class="grad">hoziroq</span> brauzeringizda sinab ko'ring.</span>
+      <span lang="en">Try four industrial ML models<br/><span class="grad">right now</span>, in your browser.</span>
+      <span lang="uz">To'rtta sanoat ML modelini <br/><span class="grad">hoziroq</span> brauzeringizda sinab ko'ring.</span>
     </h1>
     <p class="lede" lang="en">
-      Every card below is wired to a real trained model running in a FastAPI backend on this
-      machine. Drop an image, fill a form, paste some text — the response comes back in under 100 ms
-      for the small models and under 300 ms for YOLO and BERT, all without a GPU.
+      Every card below is wired to a real trained model running in a FastAPI backend.
+      Drop an image, fill a form, paste some text — the response comes back in under 150 ms,
+      all without a GPU.
     </p>
     <p class="lede" lang="uz">
-      Pastdagi har bir kart ushbu mashinada FastAPI backendda ishlayotgan haqiqiy o'rgatilgan modelga
-      ulangan. Rasmni tushiring, formani to'ldiring, matnni joylang — kichik modellarda javob 100 ms
-      dan kam, YOLO va BERT da 300 ms dan kam vaqt ichida GPU siz keladi.
+      Pastdagi har bir kart FastAPI backendda ishlayotgan haqiqiy o'rgatilgan modelga
+      ulangan. Rasmni tushiring, formani to'ldiring, matnni joylang — javob 150 ms
+      dan kam vaqt ichida GPU siz keladi.
     </p>
     <div id="server-status" class="status-chip">
       <span class="dot"></span>
-      <span lang="en">Checking server…</span>
-      <span lang="uz">Server tekshirilmoqda…</span>
+      <span lang="en">Checking server… · 4 models</span>
+      <span lang="uz">Server tekshirilmoqda… · 4 model</span>
     </div>
   </div>
 </header>
@@ -72,57 +69,13 @@
 <main class="wrap">
 
   <!-- =============================================================
-       1. CASTING DEFECT — image upload
-       ============================================================= -->
-  <section class="model-section" id="casting">
-    <div class="mhead">
-      <div class="icon">🏗️</div>
-      <div>
-        <div class="mtag">Model 1 · Computer Vision · Binary</div>
-        <h2>
-          <span lang="en">Casting Defect Classification</span>
-          <span lang="uz">Quyma mahsuloti nuqsonini tasniflash</span>
-        </h2>
-        <p class="msubtitle">
-          <span lang="en">EfficientNet-B0 fine-tune · PILOT TECHNOCAST dataset · 100% test accuracy</span>
-          <span lang="uz">EfficientNet-B0 moslamasi · PILOT TECHNOCAST dataseti · 100% test aniqligi</span>
-        </p>
-      </div>
-    </div>
-    <div class="mbody two-col">
-      <div class="mcard">
-        <div class="mcard-title" lang="en">Input — drop or pick a casting photo</div>
-        <div class="mcard-title" lang="uz">Kirish — quyma rasmni tushiring yoki tanlang</div>
-        <div class="dropzone" id="casting-drop">
-          <div class="dz-icon">⬆</div>
-          <div class="dz-label" lang="en">Drag an image here or <u>click to pick</u></div>
-          <div class="dz-label" lang="uz">Rasmni bu yerga tashlang yoki <u>tanlash uchun bosing</u></div>
-          <input type="file" id="casting-file" accept="image/*" hidden />
-        </div>
-        <img id="casting-preview" class="preview" alt="preview" hidden />
-        <button class="btn primary" id="casting-go" disabled>
-          <span lang="en">Classify</span><span lang="uz">Aniqlash</span>
-        </button>
-      </div>
-      <div class="mcard">
-        <div class="mcard-title" lang="en">Result</div>
-        <div class="mcard-title" lang="uz">Natija</div>
-        <div class="result-area" id="casting-result">
-          <div class="placeholder" lang="en">Upload an image to see the prediction.</div>
-          <div class="placeholder" lang="uz">Bashoratni ko'rish uchun rasm yuklang.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- =============================================================
-       2. PPE HARD HAT — image upload with box visualization
+       1. PPE HARD HAT — image upload with box visualization
        ============================================================= -->
   <section class="model-section" id="ppe">
     <div class="mhead">
       <div class="icon">⛑️</div>
       <div>
-        <div class="mtag">Model 2 · Computer Vision · Object Detection</div>
+        <div class="mtag">Model 1 · Computer Vision · Object Detection</div>
         <h2>
           <span lang="en">Worker-Safety PPE Detection</span>
           <span lang="uz">Ishchi xavfsizligi — kaska aniqlash</span>
@@ -168,7 +121,7 @@
     <div class="mhead">
       <div class="icon">🪓</div>
       <div>
-        <div class="mtag">Model 3 · Tabular · Predictive Maintenance</div>
+        <div class="mtag">Model 2 · Tabular · Predictive Maintenance</div>
         <h2>
           <span lang="en">Machine Failure Prediction (AI4I 2020)</span>
           <span lang="uz">Mashina nosozligini bashorat qilish (AI4I 2020)</span>
@@ -238,7 +191,7 @@
     <div class="mhead">
       <div class="icon">🔍</div>
       <div>
-        <div class="mtag">Model 4 · NLP · Named-Entity Recognition</div>
+        <div class="mtag">Model 3 · NLP · Named-Entity Recognition</div>
         <h2>
           <span lang="en">Equipment &amp; Parts NER</span>
           <span lang="uz">Jihoz va qismlarni ajratib olish</span>
@@ -285,7 +238,7 @@
     <div class="mhead">
       <div class="icon">📉</div>
       <div>
-        <div class="mtag">Model 5 · Tabular · Anomaly Detection</div>
+        <div class="mtag">Model 4 · Tabular · Anomaly Detection</div>
         <h2>
           <span lang="en">SECOM Semiconductor Fault Detection</span>
           <span lang="uz">SECOM Yarimo'tkazgich nosozliklari aniqlash</span>
@@ -330,12 +283,12 @@
 <footer>
   <div class="wrap">
     <p>
-      <span lang="en">Built by <b class="grad">Akobir Musaev</b> — 5 models behind one FastAPI backend, all CPU-only.</span>
-      <span lang="uz"><b class="grad">Akobir Musaev</b> tomonidan tayyorlangan — 5 model bitta FastAPI backend ostida, barchasi faqat CPU da.</span>
+      <span lang="en">Built by <b class="grad">Akobir Musaev</b> — 4 models behind one FastAPI backend, all CPU-only.</span>
+      <span lang="uz"><b class="grad">Akobir Musaev</b> tomonidan tayyorlangan — 4 model bitta FastAPI backend ostida, barchasi faqat CPU da.</span>
     </p>
     <p class="tiny">
-      <span lang="en">POST /api/{casting,ppe,ai4i,ner,secom}/&lt;action&gt; — see <code>/docs</code> for OpenAPI.</span>
-      <span lang="uz">POST /api/{casting,ppe,ai4i,ner,secom}/&lt;action&gt; — OpenAPI uchun <code>/docs</code>.</span>
+      <span lang="en">POST /api/{ppe,ai4i,ner,secom}/&lt;action&gt; — see <code>/docs</code> for OpenAPI.</span>
+      <span lang="uz">POST /api/{ppe,ai4i,ner,secom}/&lt;action&gt; — OpenAPI uchun <code>/docs</code>.</span>
     </p>
   </div>
 </footer>

@@ -61,60 +61,7 @@ function showError(target, err) {
 function pctFill(p) { return `<div class="bar"><div class="fill" style="width:${(p*100).toFixed(1)}%"></div></div>`; }
 
 // -----------------------------------------------------------------
-// 1. Casting
-// -----------------------------------------------------------------
-(function casting() {
-  let currentFile = null;
-  const btn = document.getElementById('casting-go');
-  const preview = document.getElementById('casting-preview');
-  const result = document.getElementById('casting-result');
-
-  wireDrop('casting-drop', 'casting-file', (file) => {
-    currentFile = file;
-    const reader = new FileReader();
-    reader.onload = (e) => { preview.src = e.target.result; preview.hidden = false; };
-    reader.readAsDataURL(file);
-    btn.disabled = false;
-  });
-
-  btn.addEventListener('click', async () => {
-    if (!currentFile) return;
-    btn.disabled = true;
-    result.innerHTML = '<div class="placeholder">Running EfficientNet-B0…</div>';
-    const fd = new FormData();
-    fd.append('file', currentFile);
-    try {
-      const r = await fetch(`${API}/api/casting/predict`, { method: 'POST', body: fd });
-      if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
-      const data = await r.json();
-      const isOk = data.verdict === 'OK';
-      const bannerClass = isOk ? 'ok' : 'bad';
-      const bannerIcon = isOk ? '✓' : '✗';
-      const bannerText = isOk ? 'ACCEPT · Casting looks good' : 'REJECT · Defect detected';
-      let html = `
-        <div class="verdict-banner ${bannerClass}">
-          <span class="big">${bannerIcon}</span>
-          <div><b>${bannerText}</b><br/><small>Predicted class: <code>${data.class_name}</code> · confidence ${(data.confidence*100).toFixed(1)}%</small></div>
-        </div>
-        <div class="metric-list">`;
-      for (const [name, p] of Object.entries(data.probabilities)) {
-        html += `<div class="prob-row">
-                   <div class="label">${name} <b>${(p*100).toFixed(1)}%</b></div>
-                   ${pctFill(p)}
-                 </div>`;
-      }
-      html += `</div><div class="latency-tag">⏱ ${data.latency_ms} ms on CPU</div>`;
-      result.innerHTML = html;
-    } catch (e) {
-      showError(result, 'Error: ' + e.message);
-    } finally {
-      btn.disabled = false;
-    }
-  });
-})();
-
-// -----------------------------------------------------------------
-// 2. PPE Hard Hat with canvas box rendering
+// 1. PPE Hard Hat with canvas box rendering
 // -----------------------------------------------------------------
 (function ppe() {
   let currentFile = null;

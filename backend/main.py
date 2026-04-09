@@ -200,7 +200,7 @@ def _yolo_postprocess(
 # ------------------------------------------------------------------
 app = FastAPI(
     title="Smart-Factory AI",
-    description="4 CPU-only industrial ML models (ONNX + tree-based) behind one API. No PyTorch needed.",
+    description="4 CPU-only industrial ML models (ONNX + tree-based) behind one API — PPE detection, machine failure, equipment NER, SECOM fault. No PyTorch needed.",
     version="2.0.0",
 )
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -226,8 +226,6 @@ def health():
 def list_models():
     return {
         "models": [
-            {"id": "casting", "name": "Casting Defect Classification", "format": "ONNX",
-             "domain": "Computer Vision", "metric": "acc 100%", "available": CASTING_ONNX.exists()},
             {"id": "ppe", "name": "Hard-Hat / PPE Detection", "format": "ONNX",
              "domain": "Object Detection", "metric": "F1 0.969 / NoHH 0.691", "available": PPE_ONNX.exists()},
             {"id": "ai4i", "name": "Machine Failure Prediction", "format": "XGBoost JSON + LightGBM joblib",
