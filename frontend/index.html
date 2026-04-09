@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Smart-Factory AI · Live Showcase</title>
+<meta name="description" content="Live, bilingual (EN/UZ) showcase of 5 CPU-only industrial ML models: casting-defect, PPE hard-hat, AI4I failure prediction, equipment NER, and SECOM wafer-fault detection." />
+<link rel="stylesheet" href="/static/assets/app.css" />
+</head>
+<body data-lang="en">
+
+<nav class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top">Smart-Factory <span class="grad">AI</span></a>
+    <div class="spacer"></div>
+    <div class="nav-links">
+      <a href="#casting" data-model="casting">
+        <span lang="en">Casting</span><span lang="uz">Quyma</span>
+      </a>
+      <a href="#ppe" data-model="ppe">
+        <span lang="en">PPE</span><span lang="uz">Kaska</span>
+      </a>
+      <a href="#ai4i" data-model="ai4i">
+        <span lang="en">AI4I</span><span lang="uz">AI4I</span>
+      </a>
+      <a href="#ner" data-model="ner">
+        <span lang="en">NER</span><span lang="uz">NER</span>
+      </a>
+      <a href="#secom" data-model="secom">
+        <span lang="en">SECOM</span><span lang="uz">SECOM</span>
+      </a>
+    </div>
+    <div class="lang-switch">
+      <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+      <button id="lang-uz" onclick="setLang('uz')">UZ</button>
+    </div>
+  </div>
+</nav>
+
+<!-- =============================================================
+     HERO
+     ============================================================= -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="kicker">
+      <span class="dot"></span>
+      <span lang="en">Live · CPU only · 5 models · one API</span>
+      <span lang="uz">Jonli · faqat CPU · 5 model · bitta API</span>
+    </div>
+    <h1>
+      <span lang="en">Try five industrial ML models<br/><span class="grad">right now</span>, in your browser.</span>
+      <span lang="uz">Beshta sanoat ML modelini <br/><span class="grad">hoziroq</span> brauzeringizda sinab ko'ring.</span>
+    </h1>
+    <p class="lede" lang="en">
+      Every card below is wired to a real trained model running in a FastAPI backend on this
+      machine. Drop an image, fill a form, paste some text — the response comes back in under 100 ms
+      for the small models and under 300 ms for YOLO and BERT, all without a GPU.
+    </p>
+    <p class="lede" lang="uz">
+      Pastdagi har bir kart ushbu mashinada FastAPI backendda ishlayotgan haqiqiy o'rgatilgan modelga
+      ulangan. Rasmni tushiring, formani to'ldiring, matnni joylang — kichik modellarda javob 100 ms
+      dan kam, YOLO va BERT da 300 ms dan kam vaqt ichida GPU siz keladi.
+    </p>
+    <div id="server-status" class="status-chip">
+      <span class="dot"></span>
+      <span lang="en">Checking server…</span>
+      <span lang="uz">Server tekshirilmoqda…</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- =============================================================
+       1. CASTING DEFECT — image upload
+       ============================================================= -->
+  <section class="model-section" id="casting">
+    <div class="mhead">
+      <div class="icon">🏗️</div>
+      <div>
+        <div class="mtag">Model 1 · Computer Vision · Binary</div>
+        <h2>
+          <span lang="en">Casting Defect Classification</span>
+          <span lang="uz">Quyma mahsuloti nuqsonini tasniflash</span>
+        </h2>
+        <p class="msubtitle">
+          <span lang="en">EfficientNet-B0 fine-tune · PILOT TECHNOCAST dataset · 100% test accuracy</span>
+          <span lang="uz">EfficientNet-B0 moslamasi · PILOT TECHNOCAST dataseti · 100% test aniqligi</span>
+        </p>
+      </div>
+    </div>
+    <div class="mbody two-col">
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Input — drop or pick a casting photo</div>
+        <div class="mcard-title" lang="uz">Kirish — quyma rasmni tushiring yoki tanlang</div>
+        <div class="dropzone" id="casting-drop">
+          <div class="dz-icon">⬆</div>
+          <div class="dz-label" lang="en">Drag an image here or <u>click to pick</u></div>
+          <div class="dz-label" lang="uz">Rasmni bu yerga tashlang yoki <u>tanlash uchun bosing</u></div>
+          <input type="file" id="casting-file" accept="image/*" hidden />
+        </div>
+        <img id="casting-preview" class="preview" alt="preview" hidden />
+        <button class="btn primary" id="casting-go" disabled>
+          <span lang="en">Classify</span><span lang="uz">Aniqlash</span>
+        </button>
+      </div>
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Result</div>
+        <div class="mcard-title" lang="uz">Natija</div>
+        <div class="result-area" id="casting-result">
+          <div class="placeholder" lang="en">Upload an image to see the prediction.</div>
+          <div class="placeholder" lang="uz">Bashoratni ko'rish uchun rasm yuklang.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       2. PPE HARD HAT — image upload with box visualization
+       ============================================================= -->
+  <section class="model-section" id="ppe">
+    <div class="mhead">
+      <div class="icon">⛑️</div>
+      <div>
+        <div class="mtag">Model 2 · Computer Vision · Object Detection</div>
+        <h2>
+          <span lang="en">Worker-Safety PPE Detection</span>
+          <span lang="uz">Ishchi xavfsizligi — kaska aniqlash</span>
+        </h2>
+        <p class="msubtitle">
+          <span lang="en">YOLOv8s · safety-biased threshold sweep · NO-Hardhat recall 0.70</span>
+          <span lang="uz">YOLOv8s · xavfsizlikka moyil bo'sag'a · NO-Hardhat recall 0.70</span>
+        </p>
+      </div>
+    </div>
+    <div class="mbody two-col">
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Input — construction-site photo</div>
+        <div class="mcard-title" lang="uz">Kirish — qurilish maydonchasi rasmi</div>
+        <div class="dropzone" id="ppe-drop">
+          <div class="dz-icon">⬆</div>
+          <div class="dz-label" lang="en">Drag a site image here</div>
+          <div class="dz-label" lang="uz">Maydonchadan olingan rasmni tushiring</div>
+          <input type="file" id="ppe-file" accept="image/*" hidden />
+        </div>
+        <div class="preview-wrap">
+          <canvas id="ppe-canvas" class="preview-canvas" hidden></canvas>
+        </div>
+        <button class="btn primary" id="ppe-go" disabled>
+          <span lang="en">Detect</span><span lang="uz">Aniqlash</span>
+        </button>
+      </div>
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Detections</div>
+        <div class="mcard-title" lang="uz">Aniqlashlar</div>
+        <div class="result-area" id="ppe-result">
+          <div class="placeholder" lang="en">Upload an image to run YOLOv8.</div>
+          <div class="placeholder" lang="uz">YOLOv8 ni ishga tushirish uchun rasm yuklang.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       3. AI4I PREDICTIVE MAINTENANCE — tabular form
+       ============================================================= -->
+  <section class="model-section" id="ai4i">
+    <div class="mhead">
+      <div class="icon">🪓</div>
+      <div>
+        <div class="mtag">Model 3 · Tabular · Predictive Maintenance</div>
+        <h2>
+          <span lang="en">Machine Failure Prediction (AI4I 2020)</span>
+          <span lang="uz">Mashina nosozligini bashorat qilish (AI4I 2020)</span>
+        </h2>
+        <p class="msubtitle">
+          <span lang="en">XGBoost + LightGBM ensemble · binary AUROC 0.9826 · 5-fold OOF</span>
+          <span lang="uz">XGBoost + LightGBM ansambl · ikkilik AUROC 0.9826 · 5-fold OOF</span>
+        </p>
+      </div>
+    </div>
+    <div class="mbody two-col">
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Process telemetry</div>
+        <div class="mcard-title" lang="uz">Jarayon telemetriyasi</div>
+        <div class="form-grid">
+          <label><span lang="en">Air temperature (K)</span><span lang="uz">Havo harorati (K)</span>
+            <input type="number" id="ai4i-air" value="298.1" step="0.1" />
+          </label>
+          <label><span lang="en">Process temperature (K)</span><span lang="uz">Jarayon harorati (K)</span>
+            <input type="number" id="ai4i-proc" value="308.6" step="0.1" />
+          </label>
+          <label><span lang="en">Rotational speed (rpm)</span><span lang="uz">Aylanish tezligi (rpm)</span>
+            <input type="number" id="ai4i-rpm" value="1551" step="1" />
+          </label>
+          <label><span lang="en">Torque (Nm)</span><span lang="uz">Moment (Nm)</span>
+            <input type="number" id="ai4i-torque" value="42.8" step="0.1" />
+          </label>
+          <label><span lang="en">Tool wear (min)</span><span lang="uz">Asbob yemirilishi (daq)</span>
+            <input type="number" id="ai4i-wear" value="108" step="1" />
+          </label>
+          <label><span lang="en">Machine quality</span><span lang="uz">Mashina sifati</span>
+            <select id="ai4i-type">
+              <option value="L">L — Low</option>
+              <option value="M" selected>M — Medium</option>
+              <option value="H">H — High</option>
+            </select>
+          </label>
+        </div>
+        <div class="preset-row">
+          <button class="chip" data-preset="healthy" lang="en">Healthy preset</button>
+          <button class="chip" data-preset="healthy" lang="uz">Sog'lom preset</button>
+          <button class="chip" data-preset="overstrain" lang="en">Overstrain</button>
+          <button class="chip" data-preset="overstrain" lang="uz">Haddan tashqari yuk</button>
+          <button class="chip" data-preset="heat" lang="en">Heat dissipation</button>
+          <button class="chip" data-preset="heat" lang="uz">Issiqlik chiqishi</button>
+        </div>
+        <button class="btn primary" id="ai4i-go">
+          <span lang="en">Predict failure risk</span>
+          <span lang="uz">Nosozlik xavfini bashorat qilish</span>
+        </button>
+      </div>
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Failure probability &amp; drivers</div>
+        <div class="mcard-title" lang="uz">Nosozlik ehtimoli va sabablari</div>
+        <div class="result-area" id="ai4i-result">
+          <div class="placeholder" lang="en">Press Predict to see the ensemble output.</div>
+          <div class="placeholder" lang="uz">Ansambl natijasini ko'rish uchun Bashorat qiling.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       4. EQUIPMENT NER — text input
+       ============================================================= -->
+  <section class="model-section" id="ner">
+    <div class="mhead">
+      <div class="icon">🔍</div>
+      <div>
+        <div class="mtag">Model 4 · NLP · Named-Entity Recognition</div>
+        <h2>
+          <span lang="en">Equipment &amp; Parts NER</span>
+          <span lang="uz">Jihoz va qismlarni ajratib olish</span>
+        </h2>
+        <p class="msubtitle">
+          <span lang="en">BERT-NER (CoNLL-2003) + hand-crafted manufacturing lexicons · 25 texts/sec CPU</span>
+          <span lang="uz">BERT-NER (CoNLL-2003) + maxsus sanoat lug'atlari · 25 matn/soniyada CPU</span>
+        </p>
+      </div>
+    </div>
+    <div class="mbody two-col">
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Paste an incident report</div>
+        <div class="mcard-title" lang="uz">Nosozlik hisobotini joylashtiring</div>
+        <textarea id="ner-text" rows="6">The hydraulic pump's drive belt broke at 08:15. A 40 mm bolt fell from the crane arm and hit the compressor housing at 6 bar. Operator at Fanuc robot line reported a loose gasket in the chiller.</textarea>
+        <div class="preset-row">
+          <button class="chip" data-ner="1" lang="en">Example 1</button>
+          <button class="chip" data-ner="1" lang="uz">Misol 1</button>
+          <button class="chip" data-ner="2" lang="en">Example 2</button>
+          <button class="chip" data-ner="2" lang="uz">Misol 2</button>
+          <button class="chip" data-ner="3" lang="en">Example 3</button>
+          <button class="chip" data-ner="3" lang="uz">Misol 3</button>
+        </div>
+        <button class="btn primary" id="ner-go">
+          <span lang="en">Extract entities</span>
+          <span lang="uz">Mohiyatlarni ajratib olish</span>
+        </button>
+      </div>
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Extracted entities (BERT + rules)</div>
+        <div class="mcard-title" lang="uz">Ajratilgan mohiyatlar (BERT + qoidalar)</div>
+        <div class="result-area" id="ner-result">
+          <div class="placeholder" lang="en">Extract to see what the model found.</div>
+          <div class="placeholder" lang="uz">Model topganlarini ko'rish uchun ajratib oling.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       5. SECOM — raw sensor vector
+       ============================================================= -->
+  <section class="model-section" id="secom">
+    <div class="mhead">
+      <div class="icon">📉</div>
+      <div>
+        <div class="mtag">Model 5 · Tabular · Anomaly Detection</div>
+        <h2>
+          <span lang="en">SECOM Semiconductor Fault Detection</span>
+          <span lang="uz">SECOM Yarimo'tkazgich nosozliklari aniqlash</span>
+        </h2>
+        <p class="msubtitle">
+          <span lang="en">5-learner stack (XGB+LGB+LR+RF+ET), 4-tree rank-avg winner · AUROC 0.7493</span>
+          <span lang="uz">5 ta learnerli stack (XGB+LGB+LR+RF+ET), 4 daraxt rank o'rtacha g'olib · AUROC 0.7493</span>
+        </p>
+      </div>
+    </div>
+    <div class="mbody two-col">
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Sensor values (comma or newline separated, up to 590)</div>
+        <div class="mcard-title" lang="uz">Sensor qiymatlari (vergul yoki yangi qator bilan, 590 tagacha)</div>
+        <textarea id="secom-text" rows="6" placeholder="3030.93, 2564.00, 2187.7333, 1411.1265, 1.3602, 100.0, ..."></textarea>
+        <div class="preset-row">
+          <button class="chip" id="secom-gen-normal" lang="en">Generate normal</button>
+          <button class="chip" id="secom-gen-normal" lang="uz">Normal yaratish</button>
+          <button class="chip" id="secom-gen-anom" lang="en">Generate anomaly</button>
+          <button class="chip" id="secom-gen-anom" lang="uz">Anomaliya yaratish</button>
+        </div>
+        <button class="btn primary" id="secom-go">
+          <span lang="en">Run 5-learner ensemble</span>
+          <span lang="uz">5 learnerli ansamblni ishga tushirish</span>
+        </button>
+      </div>
+      <div class="mcard">
+        <div class="mcard-title" lang="en">Per-learner &amp; ensemble scores</div>
+        <div class="mcard-title" lang="uz">Har bir learner va ansambl natijasi</div>
+        <div class="result-area" id="secom-result">
+          <div class="placeholder" lang="en">Paste or generate a 590-length vector.</div>
+          <div class="placeholder" lang="uz">590 uzunlikdagi vektorni joylashtiring yoki yarating.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <span lang="en">Built by <b class="grad">Akobir Musaev</b> — 5 models behind one FastAPI backend, all CPU-only.</span>
+      <span lang="uz"><b class="grad">Akobir Musaev</b> tomonidan tayyorlangan — 5 model bitta FastAPI backend ostida, barchasi faqat CPU da.</span>
+    </p>
+    <p class="tiny">
+      <span lang="en">POST /api/{casting,ppe,ai4i,ner,secom}/&lt;action&gt; — see <code>/docs</code> for OpenAPI.</span>
+      <span lang="uz">POST /api/{casting,ppe,ai4i,ner,secom}/&lt;action&gt; — OpenAPI uchun <code>/docs</code>.</span>
+    </p>
+  </div>
+</footer>
+
+<script src="/static/assets/app.js"></script>
+</body>
+</html>
